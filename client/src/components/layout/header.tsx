@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button';
-import { Bell, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { AddInvoiceModal } from '../invoice/add-invoice-modal';
+import { NotificationSystem } from '../notifications/notification-system';
 
 interface HeaderProps {
   title: string;
@@ -33,14 +34,7 @@ export function Header({ title, subtitle, showAddInvoice = false }: HeaderProps)
                   Add Invoice
                 </Button>
               )}
-              <div className="relative">
-                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-600">
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive rounded-full text-white text-xs flex items-center justify-center">
-                    3
-                  </span>
-                </Button>
-              </div>
+              <NotificationSystem />
             </div>
           </div>
         </div>

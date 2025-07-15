@@ -80,16 +80,16 @@ export class EmailService {
     const body = this.replaceVariables(template.body, invoice, user);
     
     const mailOptions = {
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      from: `${user.businessName || user.email} <${user.fromEmail || user.email}>`,
       to: invoice.clientEmail,
-      replyTo: user.email,
+      replyTo: user.fromEmail || user.email,
       subject,
       html: `
         ${body}
         <br><br>
         <hr>
         <p style="font-size: 12px; color: #666;">
-          This email was sent by ${user.businessName || user.email} using Flow.<br>
+          This email was sent by ${user.businessName || user.email}.<br>
           <a href="${unsubscribeUrl}">Unsubscribe from these reminders</a>
         </p>
       `,

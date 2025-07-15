@@ -19,7 +19,7 @@ export class NudgeService {
     const daysSinceLastNudge = invoice.lastNudgeAt ? this.getDaysSince(invoice.lastNudgeAt) : 0;
     
     // Check if we should send a nudge
-    if (!this.shouldSendNudge(daysSinceOverdue, daysSinceLastNudge, invoice.nudgeCount || 0)) {
+    if (!await this.shouldSendNudge(user, daysSinceOverdue, daysSinceLastNudge, invoice.nudgeCount || 0)) {
       return;
     }
 
@@ -56,14 +56,34 @@ export class NudgeService {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
 
-  private shouldSendNudge(daysSinceOverdue: number, daysSinceLastNudge: number, nudgeCount: number): boolean {
-    // First nudge: 1 day after due date
-    if (nudgeCount === 0 && daysSinceOverdue >= 1) {
+  private async shouldSendNudge(user: User, daysSinceOverdue: number, daysSinceLastNudge: number, nudgeCount: number): Promise<boolean> {
+    // Check if nudges are enabled
+    if (!user.nudgeEnabled) return false;
+    
+    // Check business hours
+    if (user.businessHoursOnly) {
+      const now = new Date();
+      const currentHour = now.getHours();
+      if (currentHour < (user.businessStartHour || 9) || currentHour >= (user.businessEndHour || 17)) {
+        return false;
+      }
+    }
+    
+    // Check weekdays only
+    if (user.weekdaysOnly) {
+      const now = new Date();
+      const dayOfWeek = now.getDay();
+      if (dayOfWeek === 0 || dayOfWeek === 6) return false; // Sunday = 0, Saturday = 6
+    }
+    
+    // First nudge: after configured delay
+    const firstNudgeDelay = user.firstNudgeDelay || 1;
+    if (nudgeCount === 0 && daysSinceOverdue >= firstNudgeDelay) {
       return true;
     }
     
-    // Subsequent nudges: every 3-7 days (configurable)
-    const nudgeInterval = 3; // days
+    // Subsequent nudges: every configured interval
+    const nudgeInterval = user.nudgeInterval || 3;
     if (nudgeCount > 0 && daysSinceLastNudge >= nudgeInterval) {
       return true;
     }

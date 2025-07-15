@@ -2,8 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { NudgeScheduler } from '@/components/scheduling/nudge-scheduler';
 
 export function UpcomingNudges() {
+  const [isSchedulerOpen, setIsSchedulerOpen] = useState(false);
   const { data: upcomingNudges = [] } = useQuery({
     queryKey: ['/api/dashboard/upcoming-nudges'],
   });
@@ -36,7 +39,12 @@ export function UpcomingNudges() {
           <CardTitle className="text-lg font-semibold text-slate-900">
             Upcoming Nudges
           </CardTitle>
-          <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-primary hover:text-primary/80"
+            onClick={() => setIsSchedulerOpen(true)}
+          >
             Schedule
           </Button>
         </div>
@@ -70,6 +78,7 @@ export function UpcomingNudges() {
           )}
         </div>
       </CardContent>
+      <NudgeScheduler isOpen={isSchedulerOpen} onClose={() => setIsSchedulerOpen(false)} />
     </Card>
   );
 }

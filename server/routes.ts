@@ -317,6 +317,139 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Nudge settings routes
+  app.get('/api/nudge-settings', requireAuth, async (req, res) => {
+    try {
+      const user = await storage.getUser((req.user as any).id);
+      const settings = {
+        enabled: user?.nudgeEnabled ?? true,
+        firstNudgeDelay: user?.firstNudgeDelay ?? 1,
+        nudgeInterval: user?.nudgeInterval ?? 3,
+        maxNudges: user?.isPro ? 5 : 3,
+        businessHoursOnly: user?.businessHoursOnly ?? true,
+        businessStartHour: user?.businessStartHour ?? 9,
+        businessEndHour: user?.businessEndHour ?? 17,
+        weekdaysOnly: user?.weekdaysOnly ?? true,
+        fromEmail: user?.fromEmail ?? user?.email,
+      };
+      
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get nudge settings' });
+    }
+  });
+
+  app.put('/api/nudge-settings', requireAuth, async (req, res) => {
+    try {
+      const { 
+        enabled, 
+        firstNudgeDelay, 
+        nudgeInterval, 
+        businessHoursOnly, 
+        businessStartHour, 
+        businessEndHour, 
+        weekdaysOnly, 
+        fromEmail 
+      } = req.body;
+      
+      const user = await storage.updateUser((req.user as any).id, {
+        nudgeEnabled: enabled,
+        firstNudgeDelay,
+        nudgeInterval,
+        businessHoursOnly,
+        businessStartHour,
+        businessEndHour,
+        weekdaysOnly,
+        fromEmail,
+      });
+      
+      res.json({ user });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to update nudge settings' });
+    }
+  });
+
+  // Email templates routes
+  app.get('/api/email-templates', requireAuth, async (req, res) => {
+    try {
+      const templates = await storage.getEmailTemplateByUser((req.user as any).id, 'all');
+      res.json(templates || []);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get email templates' });
+    }
+  });
+
+  // Real-time data endpoints for notifications
+  app.get('/api/recent-activity', requireAuth, async (req, res) => {
+    try {
+      const userId = (req.user as any).id;
+      const recentInvoices = await storage.getInvoicesByUser(userId);
+      
+      // Generate activity from recent invoice changes
+      const activities = recentInvoices
+        .filter(invoice => invoice.status === 'paid')
+        .map(invoice => ({
+          id: `activity-${invoice.id}`,
+          type: 'invoice_paid',
+          invoiceId: invoice.invoiceId,
+          amount: invoice.amount,
+          timestamp: invoice.updatedAt || invoice.createdAt,
+        }));
+      
+      res.json(activities);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get recent activity' });
+    }
+  });
+
+  app.get('/api/invoices/overdue', requireAuth, async (req, res) => {
+    try {
+      const userId = (req.user as any).id;
+      const invoices = await storage.getInvoicesByUser(userId);
+      
+      const overdueInvoices = invoices.filter(invoice => {
+        const now = new Date();
+        const dueDate = new Date(invoice.dueDate);
+        return dueDate < now && invoice.status !== 'paid';
+      });
+      
+      res.json(overdueInvoices);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get overdue invoices' });
+    }
+  });
+
+  app.get('/api/nudge-logs/recent', requireAuth, async (req, res) => {
+    try {
+      const userId = (req.user as any).id;
+      const invoices = await storage.getInvoicesByUser(userId);
+      
+      const recentLogs = [];
+      for (const invoice of invoices) {
+        const logs = await storage.getNudgeLogsByInvoice(invoice.id);
+        const recentInvoiceLogs = logs
+          .filter(log => {
+            if (!log.sentAt) return false;
+            const daysSince = (new Date().getTime() - new Date(log.sentAt).getTime()) / (1000 * 60 * 60 * 24);
+            return daysSince <= 1; // Last 24 hours
+          })
+          .map(log => ({
+            ...log,
+            invoice: {
+              id: invoice.id,
+              clientName: invoice.clientName,
+              invoiceId: invoice.invoiceId,
+            }
+          }));
+        recentLogs.push(...recentInvoiceLogs);
+      }
+      
+      res.json(recentLogs);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get recent nudge logs' });
+    }
+  });
+
   // Stripe subscription routes
   app.post('/api/create-subscription', requireAuth, async (req, res) => {
     try {
