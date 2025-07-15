@@ -7,6 +7,7 @@ import { Header } from '@/components/layout/header';
 import { StatsCards } from '@/components/dashboard/stats-cards';
 import { RecentActivity } from '@/components/dashboard/recent-activity';
 import { UpcomingNudges } from '@/components/dashboard/upcoming-nudges';
+import { EmailSetupStatus } from '@/components/dashboard/email-setup-status';
 import { InvoiceTable } from '@/components/invoice/invoice-table';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -61,6 +62,11 @@ export default function Dashboard() {
             ) : stats ? (
               <StatsCards stats={stats} />
             ) : null}
+
+            {/* Email Setup Status */}
+            <div className="mb-8">
+              <EmailSetupStatus />
+            </div>
 
             {/* Recent Activity & Upcoming Nudges */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

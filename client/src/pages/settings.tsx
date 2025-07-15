@@ -9,6 +9,8 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 import { SmtpSettings } from '@/components/settings/smtp-settings';
 import { EmailTemplateEditor } from '@/components/email/email-template-editor';
+import { EmailSetupWizard } from '@/components/email/email-setup-wizard';
+import { EmailTemplateManager } from '@/components/email/email-template-manager';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,6 +26,8 @@ export default function Settings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
+  const [showSetupWizard, setShowSetupWizard] = useState(false);
+  const [showTemplateManager, setShowTemplateManager] = useState(false);
 
   const [formData, setFormData] = useState({
     businessName: '',
@@ -212,6 +216,36 @@ export default function Settings() {
                   </TabsContent>
 
                   <TabsContent value="email" className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Email Automation Quick Setup</CardTitle>
+                        <CardDescription>
+                          Set up your email automation system in a few simple steps
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Button 
+                            onClick={() => setShowSetupWizard(true)}
+                            className="h-20 flex-col space-y-2"
+                          >
+                            <Settings className="h-6 w-6" />
+                            <span>Setup Wizard</span>
+                            <span className="text-xs opacity-80">Configure email automation</span>
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            onClick={() => setShowTemplateManager(true)}
+                            className="h-20 flex-col space-y-2"
+                          >
+                            <FileText className="h-6 w-6" />
+                            <span>Manage Templates</span>
+                            <span className="text-xs opacity-80">Create & edit email templates</span>
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
                     <SmtpSettings />
                   </TabsContent>
 
@@ -219,15 +253,70 @@ export default function Settings() {
                     <Card>
                       <CardHeader>
                         <CardTitle>Email Templates</CardTitle>
-                        <p className="text-sm text-muted-foreground">
+                        <CardDescription>
                           Create and customize email templates for different types of nudges
-                        </p>
+                        </CardDescription>
                       </CardHeader>
-                      <CardContent>
-                        <Button onClick={() => setShowTemplateEditor(true)}>
-                          <FileText className="h-4 w-4 mr-2" />
-                          Manage Templates
-                        </Button>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="p-4 border rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                              <MessageSquare className="h-5 w-5 text-blue-500" />
+                              <h3 className="font-medium">Friendly Templates</h3>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-3">
+                              Polite and understanding tone for regular clients
+                            </p>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setShowTemplateManager(true)}
+                            >
+                              Manage
+                            </Button>
+                          </div>
+
+                          <div className="p-4 border rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Users className="h-5 w-5 text-green-500" />
+                              <h3 className="font-medium">Professional Templates</h3>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-3">
+                              Business-like tone for corporate clients
+                            </p>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setShowTemplateManager(true)}
+                            >
+                              Manage
+                            </Button>
+                          </div>
+
+                          <div className="p-4 border rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                              <CreditCard className="h-5 w-5 text-orange-500" />
+                              <h3 className="font-medium">Firm Templates</h3>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-3">
+                              Direct tone for overdue payments
+                            </p>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setShowTemplateManager(true)}
+                            >
+                              Manage
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="pt-4 border-t">
+                          <Button onClick={() => setShowTemplateManager(true)}>
+                            <FileText className="h-4 w-4 mr-2" />
+                            Open Template Manager
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   </TabsContent>
@@ -281,6 +370,22 @@ export default function Settings() {
             </div>
           </div>
           
+          {/* Setup Wizard Modal */}
+          {showSetupWizard && (
+            <EmailSetupWizard
+              isOpen={showSetupWizard}
+              onClose={() => setShowSetupWizard(false)}
+            />
+          )}
+
+          {/* Template Manager Modal */}
+          {showTemplateManager && (
+            <EmailTemplateManager
+              isOpen={showTemplateManager}
+              onClose={() => setShowTemplateManager(false)}
+            />
+          )}
+
           {/* Template Editor Modal */}
           {showTemplateEditor && (
             <EmailTemplateEditor
