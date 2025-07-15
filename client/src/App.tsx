@@ -11,6 +11,7 @@ import Dashboard from "@/pages/dashboard";
 import Invoices from "@/pages/invoices";
 import Settings from "@/pages/settings";
 import Subscribe from "@/pages/subscribe";
+import Pricing from "@/pages/pricing";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/invoices" component={Invoices} />
       <Route path="/settings" component={Settings} />
       <Route path="/subscribe" component={Subscribe} />
+      <Route path="/pricing" component={Pricing} />
       <Route component={NotFound} />
     </Switch>
   );

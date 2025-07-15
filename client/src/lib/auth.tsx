@@ -8,6 +8,8 @@ interface User {
   email: string;
   businessName?: string;
   isPro: boolean;
+  subscriptionTier: string;
+  maxInvoices: number;
 }
 
 interface AuthContextType {

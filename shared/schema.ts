@@ -11,6 +11,8 @@ export const users = pgTable("users", {
   timezone: varchar("timezone", { length: 50 }).default("UTC"),
   messageTone: varchar("message_tone", { length: 20 }).default("friendly"),
   isPro: boolean("is_pro").default(false),
+  subscriptionTier: varchar("subscription_tier", { length: 20 }).default("free"), // free, pro, platinum, enterprise, unlimited
+  maxInvoices: integer("max_invoices").default(3),
   stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
   stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
   emailConfirmed: boolean("email_confirmed").default(false),
@@ -33,6 +35,7 @@ export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
   stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }).notNull(),
+  tier: varchar("tier", { length: 20 }).notNull(), // pro, platinum, enterprise, unlimited
   status: varchar("status", { length: 50 }).notNull(),
   nextPaymentDate: timestamp("next_payment_date"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -136,6 +139,7 @@ export const insertInvoiceSchema = createInsertSchema(invoices).pick({
 
 export const insertSubscriptionSchema = createInsertSchema(subscriptions).pick({
   stripeSubscriptionId: true,
+  tier: true,
   status: true,
   nextPaymentDate: true,
 });

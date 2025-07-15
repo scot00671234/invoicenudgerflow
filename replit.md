@@ -60,8 +60,12 @@ Preferred communication style: Simple, everyday language.
 
 ### Subscription Management
 - Stripe integration for payment processing
-- Free tier with limited features (3 active invoices)
-- Pro tier with enhanced features (unlimited invoices, more nudges)
+- Multi-tier subscription model with clear invoice limits:
+  - Free: 3 invoices
+  - Pro: 50 invoices ($19/month)
+  - Platinum: 1,000 invoices ($49/month)
+  - Enterprise: 5,000 invoices ($139/month)
+  - Free Flow: Unlimited invoices ($220/month)
 - Subscription status tracking and management
 
 ### Database Schema

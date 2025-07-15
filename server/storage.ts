@@ -8,7 +8,7 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, updates: Partial<User>): Promise<User>;
-  updateUserStripeInfo(id: number, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
+  updateUserStripeInfo(id: number, stripeCustomerId: string, stripeSubscriptionId: string, tier?: string): Promise<User>;
   confirmUserEmail(token: string): Promise<User | undefined>;
   setPasswordResetToken(email: string, token: string, expiry: Date): Promise<void>;
   resetPassword(token: string, hashedPassword: string): Promise<User | undefined>;
@@ -71,12 +71,21 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async updateUserStripeInfo(id: number, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User> {
+  async updateUserStripeInfo(id: number, stripeCustomerId: string, stripeSubscriptionId: string, tier: string = 'pro'): Promise<User> {
+    const tierToMaxInvoices = {
+      'pro': 50,
+      'platinum': 1000,
+      'enterprise': 5000,
+      'unlimited': -1,
+    };
+    
     const [user] = await db
       .update(users)
       .set({ 
         stripeCustomerId,
         stripeSubscriptionId,
+        subscriptionTier: tier,
+        maxInvoices: tierToMaxInvoices[tier as keyof typeof tierToMaxInvoices] || 50,
         isPro: true,
         updatedAt: new Date()
       })

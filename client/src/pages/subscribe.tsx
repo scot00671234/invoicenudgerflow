@@ -49,7 +49,7 @@ const SubscribeForm = () => {
     } else {
       toast({
         title: "Payment Successful",
-        description: "Welcome to Flow Pro! You now have access to unlimited invoices.",
+        description: `Welcome to Flow ${selectedTier.name}! You now have access to enhanced features.`,
       });
       setLocation('/dashboard');
     }
@@ -68,10 +68,17 @@ const SubscribeForm = () => {
         className="w-full"
         disabled={!stripe || isProcessing}
       >
-        {isProcessing ? 'Processing...' : 'Subscribe to Pro - $15/month'}
+        {isProcessing ? 'Processing...' : `Subscribe to ${selectedTier?.name || 'Pro'} - $${selectedTier?.price || 19}/month`}
       </Button>
     </form>
   );
+};
+
+const pricingTiers = {
+  pro: { name: 'Pro', price: 19, maxInvoices: 50 },
+  platinum: { name: 'Platinum', price: 49, maxInvoices: 1000 },
+  enterprise: { name: 'Enterprise', price: 139, maxInvoices: 5000 },
+  unlimited: { name: 'Free Flow', price: 220, maxInvoices: -1 },
 };
 
 export default function Subscribe() {
@@ -79,6 +86,11 @@ export default function Subscribe() {
   const [, setLocation] = useLocation();
   const [clientSecret, setClientSecret] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Get tier from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const tierParam = urlParams.get('tier') || 'pro';
+  const selectedTier = pricingTiers[tierParam as keyof typeof pricingTiers] || pricingTiers.pro;
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -98,7 +110,9 @@ export default function Subscribe() {
     // Create subscription as soon as the page loads
     const createSubscription = async () => {
       try {
-        const response = await apiRequest("POST", "/api/create-subscription");
+        const response = await apiRequest("POST", "/api/create-subscription", {
+          tier: tierParam,
+        });
         const data = await response.json();
         setClientSecret(data.clientSecret);
       } catch (error) {
@@ -154,20 +168,26 @@ export default function Subscribe() {
                     <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                       <PlaneTakeoff className="text-white w-4 h-4" />
                     </div>
-                    <span>Flow Pro</span>
+                    <span>Flow {selectedTier.name}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
                     <div>
-                      <p className="text-3xl font-bold text-slate-900">$15</p>
+                      <p className="text-3xl font-bold text-slate-900">${selectedTier.price}</p>
                       <p className="text-slate-600">per month</p>
                     </div>
                     
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <CheckCircle className="h-5 w-5 text-success" />
-                        <span className="text-sm">Unlimited invoices</span>
+                        <span className="text-sm">
+                          {selectedTier.maxInvoices === -1 ? 'Unlimited' : `Up to ${selectedTier.maxInvoices}`} invoices
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <CheckCircle className="h-5 w-5 text-success" />
+                        <span className="text-sm">Advanced nudge scheduling</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <CheckCircle className="h-5 w-5 text-success" />
@@ -175,16 +195,18 @@ export default function Subscribe() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <CheckCircle className="h-5 w-5 text-success" />
-                        <span className="text-sm">Priority support</span>
+                        <span className="text-sm">Business hours settings</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <CheckCircle className="h-5 w-5 text-success" />
-                        <span className="text-sm">Advanced reporting</span>
+                        <span className="text-sm">Email analytics</span>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="h-5 w-5 text-success" />
-                        <span className="text-sm">Custom branding</span>
-                      </div>
+                      {selectedTier.maxInvoices > 50 && (
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle className="h-5 w-5 text-success" />
+                          <span className="text-sm">Priority support</span>
+                        </div>
+                      )}
                     </div>
                     
                     <div className="pt-4 border-t">

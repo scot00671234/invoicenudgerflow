@@ -8,7 +8,8 @@ import {
   Settings, 
   CreditCard, 
   LogOut,
-  PlaneTakeoff
+  PlaneTakeoff,
+  Crown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -16,6 +17,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/invoices', icon: FileText, label: 'Invoices' },
+  { href: '/pricing', icon: Crown, label: 'Pricing' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 ];
 

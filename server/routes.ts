@@ -458,6 +458,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       let user = req.user as any;
+      const { tier = 'pro' } = req.body;
 
       if (user.stripeSubscriptionId) {
         const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
@@ -475,18 +476,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: user.businessName || user.email,
       });
 
+      // Map tier to Stripe price ID
+      const priceIds = {
+        'pro': process.env.STRIPE_PRICE_ID_PRO || 'price_pro_monthly',
+        'platinum': process.env.STRIPE_PRICE_ID_PLATINUM || 'price_platinum_monthly',
+        'enterprise': process.env.STRIPE_PRICE_ID_ENTERPRISE || 'price_enterprise_monthly',
+        'unlimited': process.env.STRIPE_PRICE_ID_UNLIMITED || 'price_unlimited_monthly',
+      };
+
       const subscription = await stripe.subscriptions.create({
         customer: customer.id,
         items: [{
-          price: process.env.STRIPE_PRICE_ID || 'price_1234567890',
+          price: priceIds[tier as keyof typeof priceIds] || priceIds.pro,
         }],
         payment_behavior: 'default_incomplete',
         expand: ['latest_invoice.payment_intent'],
       });
 
-      await storage.updateUserStripeInfo(user.id, customer.id, subscription.id);
+      await storage.updateUserStripeInfo(user.id, customer.id, subscription.id, tier);
       await storage.createSubscription(user.id, {
         stripeSubscriptionId: subscription.id,
+        tier,
         status: subscription.status,
         nextPaymentDate: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
       });
