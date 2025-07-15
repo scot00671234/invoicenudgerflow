@@ -6,7 +6,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { X } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { EmailTemplateEditor } from '@/components/email/email-template-editor';
+import { X, Mail, Settings } from 'lucide-react';
 
 interface AddInvoiceModalProps {
   onClose: () => void;
@@ -19,8 +22,10 @@ export function AddInvoiceModal({ onClose }: AddInvoiceModalProps) {
     invoiceId: '',
     amount: '',
     dueDate: '',
+    nudgeActive: true,
   });
   
+  const [showTemplateEditor, setShowTemplateEditor] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -127,6 +132,52 @@ export function AddInvoiceModal({ onClose }: AddInvoiceModalProps) {
             </div>
           </div>
           
+          {/* Email Automation Settings */}
+          <Card className="p-4 border-2 border-dashed border-primary/20">
+            <CardHeader className="p-0 pb-4">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                Email Automation
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="nudgeActive"
+                  checked={formData.nudgeActive}
+                  onCheckedChange={(checked) => 
+                    setFormData({ ...formData, nudgeActive: !!checked })
+                  }
+                />
+                <Label htmlFor="nudgeActive" className="text-sm">
+                  Enable automatic follow-up emails for this invoice
+                </Label>
+              </div>
+              
+              {formData.nudgeActive && (
+                <div className="bg-muted p-3 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Smart Email Reminders</p>
+                      <p className="text-xs text-muted-foreground">
+                        Automatically send follow-up emails when invoice becomes overdue
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowTemplateEditor(true)}
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Edit Templates
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          
           <div className="flex space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={onClose} className="flex-1">
               Cancel
@@ -140,6 +191,14 @@ export function AddInvoiceModal({ onClose }: AddInvoiceModalProps) {
             </Button>
           </div>
         </form>
+        
+        {/* Template Editor Modal */}
+        {showTemplateEditor && (
+          <EmailTemplateEditor
+            isOpen={showTemplateEditor}
+            onClose={() => setShowTemplateEditor(false)}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

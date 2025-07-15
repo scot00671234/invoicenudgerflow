@@ -39,8 +39,11 @@ export interface IStorage {
   
   // Email Templates
   getEmailTemplateByUser(userId: number, tone: string): Promise<EmailTemplate | undefined>;
+  getEmailTemplatesByUser(userId: number): Promise<EmailTemplate[]>;
+  getEmailTemplate(id: number): Promise<EmailTemplate | undefined>;
   createEmailTemplate(userId: number, template: InsertEmailTemplate): Promise<EmailTemplate>;
   updateEmailTemplate(id: number, updates: Partial<EmailTemplate>): Promise<EmailTemplate>;
+  deleteEmailTemplate(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -287,6 +290,23 @@ export class DatabaseStorage implements IStorage {
     return template || undefined;
   }
 
+  async getEmailTemplatesByUser(userId: number): Promise<EmailTemplate[]> {
+    const templates = await db
+      .select()
+      .from(emailTemplates)
+      .where(eq(emailTemplates.userId, userId))
+      .orderBy(emailTemplates.tone, emailTemplates.nudgeNumber);
+    return templates;
+  }
+
+  async getEmailTemplate(id: number): Promise<EmailTemplate | undefined> {
+    const [template] = await db
+      .select()
+      .from(emailTemplates)
+      .where(eq(emailTemplates.id, id));
+    return template || undefined;
+  }
+
   async createEmailTemplate(userId: number, template: InsertEmailTemplate): Promise<EmailTemplate> {
     const [newTemplate] = await db
       .insert(emailTemplates)
@@ -302,6 +322,12 @@ export class DatabaseStorage implements IStorage {
       .where(eq(emailTemplates.id, id))
       .returning();
     return template;
+  }
+
+  async deleteEmailTemplate(id: number): Promise<void> {
+    await db
+      .delete(emailTemplates)
+      .where(eq(emailTemplates.id, id));
   }
 }
 

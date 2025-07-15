@@ -7,18 +7,23 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
+import { SmtpSettings } from '@/components/settings/smtp-settings';
+import { EmailTemplateEditor } from '@/components/email/email-template-editor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
+import { User, Mail, FileText, CreditCard } from 'lucide-react';
 
 export default function Settings() {
   const { user, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showTemplateEditor, setShowTemplateEditor] = useState(false);
 
   const [formData, setFormData] = useState({
     businessName: '',
@@ -73,7 +78,7 @@ export default function Settings() {
     onSuccess: () => {
       toast({
         title: "Subscription Cancelled",
-        description: "Your subscription will be cancelled at the end of the current period.",
+        description: "Your subscription has been cancelled.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/settings'] });
     },
@@ -91,137 +96,198 @@ export default function Settings() {
     updateSettingsMutation.mutate(formData);
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  if (authLoading) {
+    return <div>Loading...</div>;
+  }
 
-  if (authLoading || !user) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
+  if (!user) {
+    return null;
   }
 
   return (
-    <div className="flex h-screen bg-slate-50">
-      <Sidebar />
-      
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header 
-          title="Settings" 
-          subtitle="Manage your account and preferences"
-        />
-        
-        <main className="flex-1 overflow-y-auto bg-slate-50">
-          <div className="p-6 max-w-2xl">
-            {settingsLoading ? (
-              <div className="space-y-6">
-                <Skeleton className="h-32" />
-                <Skeleton className="h-32" />
-                <Skeleton className="h-32" />
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Business Settings */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Business Information</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      <div>
-                        <Label htmlFor="businessName">Business Name</Label>
-                        <Input
-                          id="businessName"
-                          value={formData.businessName}
-                          onChange={(e) => handleInputChange('businessName', e.target.value)}
-                          placeholder="Your business name"
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="timezone">Timezone</Label>
-                        <Select value={formData.timezone} onValueChange={(value) => handleInputChange('timezone', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select timezone" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="UTC">UTC</SelectItem>
-                            <SelectItem value="America/New_York">Eastern Time</SelectItem>
-                            <SelectItem value="America/Chicago">Central Time</SelectItem>
-                            <SelectItem value="America/Denver">Mountain Time</SelectItem>
-                            <SelectItem value="America/Los_Angeles">Pacific Time</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="messageTone">Message Tone</Label>
-                        <Select value={formData.messageTone} onValueChange={(value) => handleInputChange('messageTone', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select tone" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="friendly">Friendly</SelectItem>
-                            <SelectItem value="firm">Firm</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <Button 
-                        type="submit" 
-                        disabled={updateSettingsMutation.isPending}
-                      >
-                        {updateSettingsMutation.isPending ? 'Updating...' : 'Update Settings'}
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex">
+        <Sidebar />
+        <main className="flex-1 ml-64">
+          <Header title="Settings" subtitle="Manage your account and preferences" />
+          
+          <div className="p-6">
+            <div className="max-w-4xl mx-auto space-y-6">
+              {settingsLoading ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-8 w-1/4" />
+                  <Skeleton className="h-32 w-full" />
+                  <Skeleton className="h-32 w-full" />
+                </div>
+              ) : (
+                <Tabs defaultValue="profile" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="profile" className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Profile
+                    </TabsTrigger>
+                    <TabsTrigger value="email" className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Email
+                    </TabsTrigger>
+                    <TabsTrigger value="templates" className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Templates
+                    </TabsTrigger>
+                    <TabsTrigger value="billing" className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      Billing
+                    </TabsTrigger>
+                  </TabsList>
 
-                {/* Subscription Settings */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Subscription</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <Label>Current Plan</Label>
-                        <p className="text-sm text-slate-600">
-                          {user.isPro ? 'Pro Plan - $15/month' : 'Free Plan'}
+                  <TabsContent value="profile" className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Business Settings</CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          Configure your business information and preferences
                         </p>
-                      </div>
-                      
-                      {!user.isPro ? (
-                        <div>
-                          <Button onClick={() => setLocation('/subscribe')}>
-                            Upgrade to Pro
-                          </Button>
-                          <p className="text-sm text-slate-600 mt-2">
-                            Get unlimited invoices and advanced features
-                          </p>
-                        </div>
-                      ) : (
-                        <div>
+                      </CardHeader>
+                      <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                          <div>
+                            <Label htmlFor="businessName">Business Name</Label>
+                            <Input
+                              id="businessName"
+                              value={formData.businessName}
+                              onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
+                              placeholder="Your Business Name"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="timezone">Timezone</Label>
+                            <Select 
+                              value={formData.timezone} 
+                              onValueChange={(value) => setFormData({ ...formData, timezone: value })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select timezone" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="UTC">UTC</SelectItem>
+                                <SelectItem value="US/Eastern">US/Eastern</SelectItem>
+                                <SelectItem value="US/Central">US/Central</SelectItem>
+                                <SelectItem value="US/Mountain">US/Mountain</SelectItem>
+                                <SelectItem value="US/Pacific">US/Pacific</SelectItem>
+                                <SelectItem value="Europe/London">Europe/London</SelectItem>
+                                <SelectItem value="Europe/Paris">Europe/Paris</SelectItem>
+                                <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
+                                <SelectItem value="Australia/Sydney">Australia/Sydney</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="messageTone">Default Message Tone</Label>
+                            <Select 
+                              value={formData.messageTone} 
+                              onValueChange={(value) => setFormData({ ...formData, messageTone: value })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select message tone" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="friendly">Friendly</SelectItem>
+                                <SelectItem value="professional">Professional</SelectItem>
+                                <SelectItem value="firm">Firm</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
                           <Button 
-                            variant="destructive" 
-                            onClick={() => cancelSubscriptionMutation.mutate()}
-                            disabled={cancelSubscriptionMutation.isPending}
+                            type="submit" 
+                            disabled={updateSettingsMutation.isPending}
                           >
-                            {cancelSubscriptionMutation.isPending ? 'Cancelling...' : 'Cancel Subscription'}
+                            {updateSettingsMutation.isPending ? 'Updating...' : 'Update Settings'}
                           </Button>
-                          <p className="text-sm text-slate-600 mt-2">
-                            Your subscription will remain active until the end of the current billing period
-                          </p>
+                        </form>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="email" className="space-y-6">
+                    <SmtpSettings />
+                  </TabsContent>
+
+                  <TabsContent value="templates" className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Email Templates</CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          Create and customize email templates for different types of nudges
+                        </p>
+                      </CardHeader>
+                      <CardContent>
+                        <Button onClick={() => setShowTemplateEditor(true)}>
+                          <FileText className="h-4 w-4 mr-2" />
+                          Manage Templates
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="billing" className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Subscription</CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          Manage your billing and subscription settings
+                        </p>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div>
+                            <Label>Current Plan</Label>
+                            <p className="text-sm text-slate-600">
+                              {user.isPro ? 'Pro Plan - $19/month' : 'Free Plan'}
+                            </p>
+                          </div>
+                          
+                          {!user.isPro ? (
+                            <div>
+                              <Button onClick={() => setLocation('/subscribe')}>
+                                Upgrade to Pro
+                              </Button>
+                              <p className="text-sm text-slate-600 mt-2">
+                                Get unlimited invoices and advanced features
+                              </p>
+                            </div>
+                          ) : (
+                            <div>
+                              <Button 
+                                variant="destructive" 
+                                onClick={() => cancelSubscriptionMutation.mutate()}
+                                disabled={cancelSubscriptionMutation.isPending}
+                              >
+                                {cancelSubscriptionMutation.isPending ? 'Cancelling...' : 'Cancel Subscription'}
+                              </Button>
+                              <p className="text-sm text-slate-600 mt-2">
+                                Your subscription will remain active until the end of the current billing period
+                              </p>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              )}
+            </div>
           </div>
+          
+          {/* Template Editor Modal */}
+          {showTemplateEditor && (
+            <EmailTemplateEditor
+              isOpen={showTemplateEditor}
+              onClose={() => setShowTemplateEditor(false)}
+            />
+          )}
         </main>
       </div>
     </div>

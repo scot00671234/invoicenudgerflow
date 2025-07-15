@@ -27,6 +27,12 @@ export const users = pgTable("users", {
   businessEndHour: integer("business_end_hour").default(17),
   weekdaysOnly: boolean("weekdays_only").default(true),
   fromEmail: varchar("from_email", { length: 255 }),
+  // SMTP settings for email automation
+  smtpHost: varchar("smtp_host", { length: 255 }),
+  smtpPort: integer("smtp_port").default(587),
+  smtpUser: varchar("smtp_user", { length: 255 }),
+  smtpPass: varchar("smtp_pass", { length: 255 }),
+  smtpFromName: varchar("smtp_from_name", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -72,9 +78,12 @@ export const nudgeLogs = pgTable("nudge_logs", {
 export const emailTemplates = pgTable("email_templates", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
   tone: varchar("tone", { length: 20 }).notNull(),
+  nudgeNumber: integer("nudge_number").default(1), // 1st, 2nd, 3rd nudge, etc.
   subject: varchar("subject", { length: 255 }).notNull(),
   body: text("body").notNull(),
+  isDefault: boolean("is_default").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

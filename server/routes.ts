@@ -304,16 +304,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/settings', requireAuth, async (req, res) => {
     try {
-      const { businessName, timezone, messageTone } = req.body;
+      const { businessName, timezone, messageTone, smtpHost, smtpPort, smtpUser, smtpPass, smtpFromName, nudgeEnabled, firstNudgeDelay, nudgeInterval, businessHoursOnly, businessStartHour, businessEndHour, weekdaysOnly } = req.body;
       const user = await storage.updateUser((req.user as any).id, {
         businessName,
         timezone,
         messageTone,
+        smtpHost,
+        smtpPort,
+        smtpUser,
+        smtpPass,
+        smtpFromName,
+        nudgeEnabled,
+        firstNudgeDelay,
+        nudgeInterval,
+        businessHoursOnly,
+        businessStartHour,
+        businessEndHour,
+        weekdaysOnly,
       });
       
       res.json({ user });
     } catch (error) {
       res.status(500).json({ message: 'Failed to update settings' });
+    }
+  });
+
+  app.post('/api/test-smtp', requireAuth, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const { smtpHost, smtpPort, smtpUser, smtpPass, smtpFromName } = req.body;
+      
+      // Create test transporter
+      const nodemailer = require('nodemailer');
+      const transporter = nodemailer.createTransporter({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass
+        }
+      });
+
+      // Send test email
+      await transporter.sendMail({
+        from: `${smtpFromName} <${smtpUser}>`,
+        to: user.email,
+        subject: 'SMTP Test - Flow',
+        html: `
+          <h2>SMTP Test Successful</h2>
+          <p>Your SMTP configuration is working correctly!</p>
+          <p>This test email was sent from your Flow application.</p>
+          <hr>
+          <p><small>Flow - Invoice Nudge Automation</small></p>
+        `
+      });
+
+      res.json({ message: 'Test email sent successfully' });
+    } catch (error) {
+      console.error('SMTP test error:', error);
+      res.status(500).json({ message: 'Failed to send test email: ' + error.message });
     }
   });
 
@@ -532,6 +582,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: 'Subscription will be cancelled at the end of the current period' });
     } catch (error) {
       res.status(500).json({ message: 'Failed to cancel subscription' });
+    }
+  });
+
+  // Email template routes
+  app.get('/api/email-templates', requireAuth, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const templates = await storage.getEmailTemplatesByUser(user.id);
+      res.json(templates);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to fetch email templates' });
+    }
+  });
+
+  app.post('/api/email-templates', requireAuth, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const templateData = {
+        ...req.body,
+        userId: user.id,
+      };
+      
+      const template = await storage.createEmailTemplate(user.id, templateData);
+      res.json(template);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to create email template' });
+    }
+  });
+
+  app.patch('/api/email-templates/:id', requireAuth, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const templateId = parseInt(req.params.id);
+      
+      // Check if template belongs to user
+      const existingTemplate = await storage.getEmailTemplate(templateId);
+      if (!existingTemplate || existingTemplate.userId !== user.id) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+      
+      const template = await storage.updateEmailTemplate(templateId, req.body);
+      res.json(template);
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to update email template' });
+    }
+  });
+
+  app.delete('/api/email-templates/:id', requireAuth, async (req, res) => {
+    try {
+      const user = req.user as any;
+      const templateId = parseInt(req.params.id);
+      
+      // Check if template belongs to user
+      const existingTemplate = await storage.getEmailTemplate(templateId);
+      if (!existingTemplate || existingTemplate.userId !== user.id) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+      
+      await storage.deleteEmailTemplate(templateId);
+      res.json({ message: 'Template deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to delete email template' });
     }
   });
 
