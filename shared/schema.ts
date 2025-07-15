@@ -112,6 +112,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   timezone: true,
   messageTone: true,
   emailConfirmToken: true,
+  emailConfirmed: true,
 });
 
 export const insertInvoiceSchema = createInsertSchema(invoices).pick({

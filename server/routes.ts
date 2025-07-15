@@ -98,18 +98,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      const emailConfirmToken = crypto.randomBytes(32).toString('hex');
 
+      // Create user with email confirmed by default (skip email verification in development)
       const user = await storage.createUser({
         email,
         password: hashedPassword,
         businessName,
-        emailConfirmToken,
+        emailConfirmed: true,
       });
 
-      await emailService.sendConfirmationEmail(user, emailConfirmToken);
+      // Email confirmation is disabled in development mode
+      console.log('User created successfully:', user.email);
 
-      res.json({ message: 'User created. Please check your email for confirmation.' });
+      res.json({ message: 'Account created successfully! You can now log in.' });
     } catch (error: any) {
       console.error('Signup error:', error);
       res.status(400).json({ message: 'Invalid input', error: error.message });

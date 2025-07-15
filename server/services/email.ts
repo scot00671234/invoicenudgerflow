@@ -6,18 +6,35 @@ export class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER || '',
-        pass: process.env.SMTP_PASS || '',
-      },
-    });
+    // Only create transporter if SMTP credentials are provided
+    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      this.transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+    } else {
+      // Create a dummy transporter for development
+      this.transporter = {
+        sendMail: async () => {
+          console.log('Email service not configured - skipping email send');
+          return { messageId: 'dev-mode' };
+        }
+      } as any;
+    }
   }
 
   async sendConfirmationEmail(user: User, token: string): Promise<void> {
+    // Skip if email service is not configured
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.log('Email service not configured - skipping confirmation email');
+      return;
+    }
+
     const confirmUrl = `${process.env.APP_URL || 'http://localhost:5000'}/confirm-email?token=${token}`;
     
     const mailOptions = {
