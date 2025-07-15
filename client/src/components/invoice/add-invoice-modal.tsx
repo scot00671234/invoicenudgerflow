@@ -51,8 +51,8 @@ export function AddInvoiceModal({ onClose }: AddInvoiceModalProps) {
     e.preventDefault();
     createInvoiceMutation.mutate({
       ...formData,
-      amount: parseFloat(formData.amount),
-      dueDate: new Date(formData.dueDate).toISOString(),
+      amount: formData.amount, // Keep as string for backend validation
+      dueDate: formData.dueDate, // Keep as string for backend validation
     });
   };
 

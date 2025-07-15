@@ -121,6 +121,9 @@ export const insertInvoiceSchema = createInsertSchema(invoices).pick({
   invoiceId: true,
   amount: true,
   dueDate: true,
+}).extend({
+  amount: z.string().or(z.number()).transform(val => String(val)),
+  dueDate: z.string().or(z.date()).transform(val => new Date(val)),
 });
 
 export const insertSubscriptionSchema = createInsertSchema(subscriptions).pick({
