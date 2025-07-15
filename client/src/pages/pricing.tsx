@@ -34,7 +34,6 @@ const pricingTiers: PricingTier[] = [
       'Up to 3 invoices',
       'Basic email nudges',
       'Standard templates',
-      'Email support',
     ],
   },
   {
@@ -56,8 +55,8 @@ const pricingTiers: PricingTier[] = [
     priceId: 'price_pro_monthly',
   },
   {
-    id: 'platinum',
-    name: 'Platinum',
+    id: 'scale',
+    name: 'Scale',
     price: 49,
     interval: 'month',
     maxInvoices: 1000,
@@ -67,11 +66,9 @@ const pricingTiers: PricingTier[] = [
       'Up to 1,000 invoices',
       'Advanced automation rules',
       'Custom branding',
-      'Priority email support',
       'Advanced analytics',
-      'API access',
     ],
-    priceId: 'price_platinum_monthly',
+    priceId: 'price_scale_monthly',
   },
   {
     id: 'enterprise',
@@ -83,17 +80,14 @@ const pricingTiers: PricingTier[] = [
     icon: Building2,
     features: [
       'Up to 5,000 invoices',
-      'Team collaboration',
       'Advanced reporting',
       'Custom integrations',
-      'Dedicated account manager',
-      'Phone support',
     ],
     priceId: 'price_enterprise_monthly',
   },
   {
-    id: 'unlimited',
-    name: 'Free Flow',
+    id: 'platinum',
+    name: 'Platinum',
     price: 220,
     interval: 'month',
     maxInvoices: -1, // Unlimited
@@ -107,7 +101,7 @@ const pricingTiers: PricingTier[] = [
       'Premium support',
       'SLA guarantee',
     ],
-    priceId: 'price_unlimited_monthly',
+    priceId: 'price_platinum_monthly',
   },
 ];
 

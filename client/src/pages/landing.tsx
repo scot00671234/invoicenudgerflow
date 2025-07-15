@@ -125,31 +125,32 @@ export default function Landing() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
             <Card className="p-6">
               <CardContent className="p-0">
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-bold text-slate-900 mb-2">Free</h3>
+                  <p className="text-slate-600 text-sm mb-4">Perfect for getting started</p>
                   <p className="text-4xl font-bold text-slate-900">$0</p>
-                  <p className="text-slate-600">per month</p>
+                  <p className="text-slate-600">/month</p>
                 </div>
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-success mr-2" />
-                    <span>Up to 3 active invoices</span>
+                    <span className="text-sm">Up to 3 invoices</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-success mr-2" />
-                    <span>Basic nudge templates</span>
+                    <span className="text-sm">Basic email nudges</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-success mr-2" />
-                    <span>Email support</span>
+                    <span className="text-sm">Standard templates</span>
                   </li>
                 </ul>
                 <Link href="/signup">
                   <Button className="w-full" variant="outline">
-                    Get Started Free
+                    Current Plan
                   </Button>
                 </Link>
               </CardContent>
@@ -159,32 +160,147 @@ export default function Landing() {
               <CardContent className="p-0">
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-bold text-slate-900 mb-2">Pro</h3>
-                  <p className="text-4xl font-bold text-slate-900">$15</p>
-                  <p className="text-slate-600">per month</p>
+                  <p className="text-slate-600 text-sm mb-4">Great for growing businesses</p>
+                  <p className="text-4xl font-bold text-slate-900">$19</p>
+                  <p className="text-slate-600">/month</p>
                 </div>
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-success mr-2" />
-                    <span>Unlimited invoices</span>
+                    <span className="text-sm">Up to 50 invoices</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-success mr-2" />
-                    <span>Custom email templates</span>
+                    <span className="text-sm">Advanced nudge scheduling</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-success mr-2" />
-                    <span>Priority support</span>
+                    <span className="text-sm">Custom email templates</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="h-5 w-5 text-success mr-2" />
-                    <span>Advanced reporting</span>
+                    <span className="text-sm">Business hours settings</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">Email analytics</span>
                   </li>
                 </ul>
                 <Link href="/signup">
                   <Button className="w-full">
-                    Start Pro Trial
+                    Upgrade
                   </Button>
                 </Link>
+                <p className="text-xs text-slate-500 mt-2 text-center">Cancel anytime</p>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6">
+              <CardContent className="p-0">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Scale</h3>
+                  <p className="text-slate-600 text-sm mb-4">For established businesses</p>
+                  <p className="text-4xl font-bold text-slate-900">$49</p>
+                  <p className="text-slate-600">/month</p>
+                </div>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">Up to 1,000 invoices</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">Advanced automation rules</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">Custom branding</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">Advanced analytics</span>
+                  </li>
+                </ul>
+                <Link href="/signup">
+                  <Button className="w-full">
+                    Upgrade
+                  </Button>
+                </Link>
+                <p className="text-xs text-slate-500 mt-2 text-center">Cancel anytime</p>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6">
+              <CardContent className="p-0">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Enterprise</h3>
+                  <p className="text-slate-600 text-sm mb-4">For large organizations</p>
+                  <p className="text-4xl font-bold text-slate-900">$139</p>
+                  <p className="text-slate-600">/month</p>
+                </div>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">Up to 5,000 invoices</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">Advanced reporting</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">Custom integrations</span>
+                  </li>
+                </ul>
+                <Link href="/signup">
+                  <Button className="w-full">
+                    Upgrade
+                  </Button>
+                </Link>
+                <p className="text-xs text-slate-500 mt-2 text-center">Cancel anytime</p>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 border-2 border-primary">
+              <CardContent className="p-0">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Platinum</h3>
+                  <p className="text-slate-600 text-sm mb-4">No limits, maximum freedom</p>
+                  <p className="text-4xl font-bold text-slate-900">$220</p>
+                  <p className="text-slate-600">/month</p>
+                </div>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">Unlimited invoices</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">All features included</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">White-label solution</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">Custom development</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">Premium support</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-success mr-2" />
+                    <span className="text-sm">SLA guarantee</span>
+                  </li>
+                </ul>
+                <Link href="/signup">
+                  <Button className="w-full">
+                    Upgrade
+                  </Button>
+                </Link>
+                <p className="text-xs text-slate-500 mt-2 text-center">Cancel anytime</p>
               </CardContent>
             </Card>
           </div>
