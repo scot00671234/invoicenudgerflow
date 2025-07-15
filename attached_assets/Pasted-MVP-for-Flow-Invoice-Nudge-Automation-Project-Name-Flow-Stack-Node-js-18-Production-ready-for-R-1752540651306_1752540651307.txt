@@ -1,0 +1,202 @@
+MVP for Flow (Invoice Nudge Automation)
+Project Name: Flow
+Stack: Node.js 18 (Production-ready for Railway), PostgreSQL, SMTP (no SendGrid), Stripe (for subscriptions)
+Purpose: Flow is a minimalist SaaS tool that automates invoice follow-up emails ("nudges") for business owners. Instead of manually reminding clients to pay invoices, Flow sends intelligent, scheduled nudges via email.
+
+📄 Required Pages
+Landing Page
+
+Value proposition
+
+Pricing (Free vs Pro)
+
+CTA to Sign Up
+
+Login / Sign Up
+
+Email + password
+
+Auth system with confirmation email
+
+Dashboard (Main App)
+
+Overview of invoice activity:
+
+of invoices tracked
+Last nudge sent
+
+Next nudge scheduled
+
+Invoice status: Paid / Nudging / Ended
+
+Invoices Page
+
+Upload or sync invoices
+
+View and manage invoices
+
+Manually mark as paid
+
+Settings Page
+
+Business info (name, email, timezone)
+
+Message tone (Friendly / Firm)
+
+Edit templates (optional)
+
+Manage subscription (via Stripe)
+
+Cancel subscription
+
+Delete account (auto-cancels sub on Stripe)
+
+See next billing date
+
+🔐 Auth & User Management
+Email/password auth
+
+Confirmation email (via SMTP)
+
+Forgot password flow
+
+Secure session handling
+
+JWT or session-based auth
+
+Role-based access: Free / Pro
+
+💳 Subscription System
+Stripe integration
+
+Freemium model:
+
+Free tier: up to 3 active invoices
+
+Pro tier: unlimited invoices, customization options
+
+Subscription plan: $15/month
+
+On upgrade:
+
+Enable advanced features (custom templates, branding, more reminders)
+
+On downgrade or deletion:
+
+Cancel subscription
+
+Remove access after current billing period
+
+📬 Email Features
+SMTP integration
+
+Transactional emails:
+
+Signup confirmation
+
+Password reset
+
+Nudge reminders to clients
+
+Uses variables like {{client_name}}, {{invoice_due_date}}, etc.
+
+All emails must include:
+
+Unsubscribe link (for client emails)
+
+Business reply-to address
+
+Email sending logic
+
+First nudge: 1 day after due date
+
+Follow-up: every 3–7 days (configurable)
+
+Auto-stop after X nudges or marked paid
+
+Use throttling to avoid spam flags
+
+🧾 Invoice Management
+3 ways to input invoices:
+
+Connect accounting software (optional in future)
+
+Upload CSV
+
+Manual entry form
+
+Invoice fields:
+
+Client name
+
+Client email
+
+Invoice ID
+
+Invoice date
+
+Due date
+
+Amount
+
+Ability to:
+
+Mark as paid
+
+See nudge status
+
+Cancel future nudges per invoice
+
+📈 Nudge Engine
+Runs scheduled job (cron or worker)
+
+Checks overdue invoices
+
+Sends emails based on schedule
+
+Tracks:
+
+When last nudge was sent
+
+How many nudges sent
+
+Nudge stop conditions met (paid, max nudges)
+
+Optional: Email open/reply tracking
+
+🧠 Data Schema (PostgreSQL)
+Key tables:
+
+users: id, email, password_hash, is_pro, stripe_customer_id, business_name, timezone
+
+subscriptions: user_id, stripe_sub_id, status, next_payment_date
+
+invoices: id, user_id, client_name, client_email, due_date, amount, status, paid_at
+
+nudge_logs: invoice_id, sent_at, email_subject, email_body
+
+email_templates: user_id, tone, subject, body (optional for Pro)
+
+All tables should be automatically created in Railway’s PostgreSQL environment.
+
+🧼 UX Design Principles
+Minimalist interface — no clutter
+
+One clear call-to-action per screen
+
+Soft branding — Flow should feel calm and helpful
+
+Easy onboarding: import/upload invoices, set defaults, done
+
+Responsive for desktop (mobile optional later)
+
+🚫 Out of Scope for MVP
+No mobile app
+
+No in-app chat
+
+No payment collection features (invoices are tracked, not paid via Flow)
+
+No complex accounting sync (basic CSV/manual entry only)
+
+No AI-generated content yet
