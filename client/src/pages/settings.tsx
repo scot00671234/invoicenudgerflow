@@ -14,11 +14,11 @@ import { EmailTemplateManager } from '@/components/email/email-template-manager'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { User, Mail, FileText, CreditCard } from 'lucide-react';
+import { User, Mail, FileText, CreditCard, Settings as SettingsIcon, MessageSquare, Users } from 'lucide-react';
 
 export default function Settings() {
   const { user, isLoading: authLoading } = useAuth();
@@ -229,7 +229,7 @@ export default function Settings() {
                             onClick={() => setShowSetupWizard(true)}
                             className="h-20 flex-col space-y-2"
                           >
-                            <Settings className="h-6 w-6" />
+                            <SettingsIcon className="h-6 w-6" />
                             <span>Setup Wizard</span>
                             <span className="text-xs opacity-80">Configure email automation</span>
                           </Button>
